@@ -1,17 +1,22 @@
 #include "Game.h"
 
-Game::Game(int boardSize, int seed) : boardSize(boardSize), length(3), dead(false) {
+Game::Game(int boardSize, int seed) : boardSize(boardSize), length(3), dead(false), apple({0, 0}), win(false) {
 	srand(seed);
 	direction = Direction::up;
 	snakeHead = { random(boardSize), random(boardSize) };
-	apple = { random(boardSize), random(boardSize) };
 	snake.push_back(snakeHead);
+	respawnApple();
 }
 
 void Game::update() {
 	if (!dead) {
 		moveSnake();
 		checkDeath();
+
+		if (snakeHead.x == apple.x && snakeHead.y == apple.y) {
+			respawnApple();
+			length++;
+		}
 	}
 }
 
@@ -129,6 +134,25 @@ void Game::rotateValue(std::vector<float>& vector, int amount, int offset) {
 	}
 }
 
+void Game::respawnApple() {
+	if (length == boardSize * boardSize) {
+		win = true;
+		return;
+	}
+
+	bool snakeTouch = false;
+	do {
+		snakeTouch = false;
+		apple = { random(boardSize), random(boardSize) };
+		for (auto temp : snake) {
+			if (temp.x == apple.x && temp.y == apple.y) {
+				snakeTouch = true;
+				break;
+			}
+		}
+	} while (snakeTouch == true);
+}
+
 void Game::renderSnake(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
 	if (dead) {
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -159,7 +183,7 @@ void Game::renderApple(SDL_Renderer* renderer, int renderX, int renderY, int sin
 }
 
 int Game::random(int max) {
-	return rand() % (max + 1);
+	return rand() % (max);
 }
 
 Direction Game::getDirection() {

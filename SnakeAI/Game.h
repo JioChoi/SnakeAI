@@ -22,6 +22,7 @@ public:
 
 	Direction getDirection();
 	void setDirection(const Direction direction);
+	bool win;
 private:
 	void moveSnake();
 	void checkDeath();
@@ -33,6 +34,8 @@ private:
 
 	void getData(std::vector<float>& vector, int offset, SDL_Point &a, SDL_Point &b);
 	void rotateValue(std::vector<float>& vector, int amount, int offset);
+
+	void respawnApple();
 
 	SDL_Point snakeHead;
 	std::vector<SDL_Point> snake;
