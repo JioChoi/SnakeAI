@@ -6,16 +6,27 @@ Game::Game(int boardSize, int seed) : boardSize(boardSize), length(3), dead(fals
 	snakeHead = { random(boardSize), random(boardSize) };
 	snake.push_back(snakeHead);
 	respawnApple();
+
+	moveChance = 150;
+	liveTime = 0;
+	eatenApple = 0;
 }
 
 void Game::update() {
 	if (!dead) {
 		moveSnake();
 		checkDeath();
+		moveChance--;
+		liveTime++;
 
 		if (snakeHead.x == apple.x && snakeHead.y == apple.y) {
 			respawnApple();
 			length++;
+			moveChance += 150;
+			eatenApple++;
+		}
+		if (moveChance < 0) {
+			dead = true;
 		}
 	}
 }
@@ -63,8 +74,8 @@ void Game::render(SDL_Renderer *renderer, int renderX, int renderY, int size) {
 	renderGrid(renderer, renderX, renderY, singleTileSize);
 }
 
-std::vector<float> Game::getData() {
-	std::vector<float> finalData;
+void Game::getData(std::vector<float> &finalData) {
+	finalData.clear();
 	finalData.resize(24, 0);
 
 	getData(finalData, 0, apple, snakeHead);
@@ -84,8 +95,6 @@ std::vector<float> Game::getData() {
 	finalData.at(16 + 5) = std::max(finalData.at(16 + 4), finalData.at(16 + 6));
 	finalData.at(16 + 7) = std::max(finalData.at(16 + 0), finalData.at(16 + 6));
 	rotateValue(finalData, static_cast<int>(direction) * 2, 16);
-
-	return finalData;
 }
 
 void Game::getData(std::vector<float>& vector, int offset, SDL_Point& a, SDL_Point& b) {
@@ -144,7 +153,7 @@ void Game::respawnApple() {
 	do {
 		snakeTouch = false;
 		apple = { random(boardSize), random(boardSize) };
-		for (auto temp : snake) {
+		for (SDL_Point& temp : snake) {
 			if (temp.x == apple.x && temp.y == apple.y) {
 				snakeTouch = true;
 				break;
@@ -160,14 +169,14 @@ void Game::renderSnake(SDL_Renderer *renderer, int renderX, int renderY, int sin
 	else {
 		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 	}
-	for (auto temp : snake) {
+	for (SDL_Point& temp : snake) {
 		drect = { renderX + temp.x * singleTileSize, renderY + temp.y * singleTileSize, singleTileSize, singleTileSize };
 		SDL_RenderFillRect(renderer, &drect);
 	}
 }
 
 void Game::renderGrid(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 160);
 	for (int y = 0; y < boardSize; y++) {
 		for (int x = 0; x < boardSize; x++) {
 			drect = { renderX + x * singleTileSize, renderY + y * singleTileSize, singleTileSize, singleTileSize };
@@ -192,4 +201,17 @@ Direction Game::getDirection() {
 
 void Game::setDirection(const Direction direction) {
 	this->direction = direction;
+}
+
+void Game::moveDirection(int change) {
+	int dir = static_cast<int>(direction);
+	dir += change;
+
+	if (dir < 0) {
+		dir = 3;
+	}
+	else if (dir > 3) {
+		dir = 0;
+	}
+	direction = static_cast<Direction>(dir);
 }

@@ -18,11 +18,18 @@ public:
 	void update();
 	void render(SDL_Renderer *renderer, int renderX, int renderY, int size);
 
-	std::vector<float> getData();
+	void getData(std::vector<float> &finalData);
 
 	Direction getDirection();
 	void setDirection(const Direction direction);
+	void moveDirection(int change);
 	bool win;
+	bool dead;
+
+	int moveChance;
+	int liveTime;
+	int eatenApple;
+	int length;
 private:
 	void moveSnake();
 	void checkDeath();
@@ -40,8 +47,6 @@ private:
 	SDL_Point snakeHead;
 	std::vector<SDL_Point> snake;
 	Direction direction;
-	int length;
-	bool dead;
 
 	SDL_Point apple;
 
