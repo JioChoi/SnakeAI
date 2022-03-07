@@ -30,6 +30,9 @@ public:
 	int liveTime;
 	int eatenApple;
 	int length;
+	float closePoint;
+
+	std::vector<SDL_Point> applePositionLog;
 private:
 	void moveSnake();
 	void checkDeath();
@@ -52,4 +55,7 @@ private:
 
 	int boardSize;
 	SDL_Rect drect;
+	std::mt19937 mt;
+
+	float previousDistance;
 };

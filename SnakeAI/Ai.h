@@ -19,6 +19,8 @@ public:
 	void ReLU();
 	void sigmoid();
 
+	std::string getWeightData();
+
 	float biasWeight;
 private:
 	struct Connection {
@@ -37,6 +39,8 @@ public:
 	Ai(std::shared_ptr<Ai>& a);
 	std::vector<float> input;
 	int calculate();
+
+	std::string getWeightData();
 private:
 	void createEmptyNeuron();
 	void connectNeuron();

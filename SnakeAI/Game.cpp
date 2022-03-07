@@ -1,15 +1,21 @@
 #include "Game.h"
 
-Game::Game(int boardSize, int seed) : boardSize(boardSize), length(3), dead(false), apple({0, 0}), win(false) {
-	srand(seed);
+#define MOVE_CHANCE 150
+#define APPLE_MOVE 150
+
+Game::Game(int boardSize, int seed) : boardSize(boardSize), length(3), dead(false), apple({ 0, 0 }), win(false) {
+	//srand(seed);
+	mt = std::mt19937(seed);
 	direction = Direction::up;
 	snakeHead = { random(boardSize), random(boardSize) };
 	snake.push_back(snakeHead);
 	respawnApple();
 
-	moveChance = 150;
+	moveChance = MOVE_CHANCE;
 	liveTime = 0;
 	eatenApple = 0;
+	previousDistance = 0;
+	closePoint = 0;
 }
 
 void Game::update() {
@@ -19,10 +25,19 @@ void Game::update() {
 		moveChance--;
 		liveTime++;
 
+		float currentDistance = sqrt(pow(snakeHead.x - apple.x, 2) + pow(snakeHead.y - apple.y, 2));
+		if (currentDistance < previousDistance) {
+			closePoint += 1;
+		}
+		else {
+			closePoint -= 1.5;
+		}
+		previousDistance = currentDistance;
+
 		if (snakeHead.x == apple.x && snakeHead.y == apple.y) {
 			respawnApple();
 			length++;
-			moveChance += 150;
+			moveChance += APPLE_MOVE;
 			eatenApple++;
 		}
 		if (moveChance < 0) {
@@ -160,6 +175,8 @@ void Game::respawnApple() {
 			}
 		}
 	} while (snakeTouch == true);
+
+	applePositionLog.push_back(apple);
 }
 
 void Game::renderSnake(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
@@ -192,7 +209,9 @@ void Game::renderApple(SDL_Renderer* renderer, int renderX, int renderY, int sin
 }
 
 int Game::random(int max) {
-	return rand() % (max);
+	std::uniform_int_distribution dis(0, boardSize - 1);
+	
+	return dis(mt);
 }
 
 Direction Game::getDirection() {

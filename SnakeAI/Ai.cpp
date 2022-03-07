@@ -3,6 +3,8 @@
 #define INPUT_NUM 24
 #define HIDDEN_NUM 16
 
+#define MUTATION_RATE 3
+
 Ai::Ai() {
 	createEmptyNeuron();
 	connectNeuron();
@@ -21,7 +23,10 @@ int Ai::calculate() {
 
 	/* SET INPUT VALUE */
 	for (int at = 0; at < neuron.at(0).size(); at++) {
-		neuron.at(0).at(at).setValue(input.at(at));
+		float temp = 1.0 / input.at(at);
+		if (temp != INFINITY) {
+			neuron.at(0).at(at).setValue(temp);
+		}
 	}
 
 	/* CALCULATE INPUT */
@@ -127,11 +132,11 @@ void Ai::mutate() {
 	for (int at = 0; at < 3; at++) {
 		for (Neuron& data : neuron.at(at)) {
 			for (int att = 0; att < data.getConnectedNeuronSize(); att++) {
-				if (Tool::randomInt(0, 100) <= 2) {
+				if (Tool::randomInt(0, 100) <= MUTATION_RATE) {
 					data.setWeight(att, Tool::randomFloat(-1, 1));
 				}
 			}
-			if (Tool::randomInt(0, 100) <= 2) {
+			if (Tool::randomInt(0, 100) <= MUTATION_RATE) {
 				data.biasWeight = Tool::randomFloat(-1, 1);
 			}
 		}
@@ -182,4 +187,23 @@ void Neuron::ReLU() {
 
 void Neuron::sigmoid() {
 	value = value / (1 + abs(value)) + 1;
+}
+
+std::string Ai::getWeightData() {
+	std::string result = "";
+	for (int at = 0; at < 3; at++) {
+		for (Neuron &data : neuron.at(at)) {
+			result += data.getWeightData();
+		}
+	}
+	return result;
+}
+
+std::string Neuron::getWeightData() {
+	std::string result = "";
+	for (auto &temp : connectedNeuron) {
+		result = result + std::to_string(temp.weight) + " ";
+	}
+	result = result + std::to_string(biasWeight) + " ";
+	return result;
 }
