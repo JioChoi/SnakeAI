@@ -24,6 +24,7 @@ int Ai::calculate() {
 	/* SET INPUT VALUE */
 	for (int at = 0; at < neuron.at(0).size(); at++) {
 		float temp = 1.0 / input.at(at);
+		//float temp = input.at(at);
 		if (temp != INFINITY) {
 			neuron.at(0).at(at).setValue(temp);
 		}

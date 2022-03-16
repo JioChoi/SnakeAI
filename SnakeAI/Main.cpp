@@ -10,6 +10,8 @@
 
 #define ONE_GENERATION_NUM 999
 #define BOARD_SIZE 20
+#define RUN_TILL 100
+#define MODE 0
 
 struct Individual {
 	std::shared_ptr<Ai> ai;
@@ -81,22 +83,39 @@ void update() {
 			int liveTime = ai.at(at).game.get()->liveTime;
 			int eatenApple = ai.at(at).game.get()->eatenApple;
 			float closePoint = ai.at(at).game.get()->closePoint;
+			float score = 0;
 
-			//float score = liveTime + closePoint * 5;
-			//float score = liveTime;
-			//float score = eatenApple + closePoint;
-			float score = eatenApple;
+			switch (MODE) {
+			case 0:
+				score = eatenApple;
+				break;
+			case 1:
+				score = liveTime + closePoint * 5;
+				break;
+			case 2:
+				score = liveTime;
+				break;
+			case 3:
+				score = eatenApple + closePoint;
+				break;
+			}
+			
 			scoredAi.push_back({ ai.at(at).ai, score, ai.at(at).game.get()->applePositionLog, ai.at(at).game.get()->length });
 			bestScore = std::fmax(score, bestScore);
 			lengthSum += ai.at(at).game.get()->length;
 			bestLength = std::max(bestLength, ai.at(at).game.get()->length);
 			generationBestLength = std::max(generationBestLength, ai.at(at).game.get()->length);
 		}
-
+		
 		if (individual >= ONE_GENERATION_NUM) {
 			generation++;
 			individual = 0;
 
+			if (parent.size() >= 2) {
+				//scoredAi.push_back(parent.at(0));
+				//scoredAi.push_back(parent.at(1));
+			}
+			
 			std::sort(scoredAi.begin(), scoredAi.end(), compareFunction);
 			parent.clear();
 			for (int at = 0; at < 10; at++) {
@@ -107,7 +126,7 @@ void update() {
 			lengthSum = 0;
 			//seed = SDL_GetTicks();
 
-			std::ofstream output("result/data.cfg", std::ios_base::app);
+			std::ofstream output("result/m" + std::to_string(MODE) + ".res", std::ios_base::app);
 			std::string temp = "";
 
 			for (auto pos : parent.at(0).apple) {
@@ -118,9 +137,11 @@ void update() {
 			temp = std::to_string(parent.at(0).length) + ")" + parent.at(0).ai.get()->getWeightData() + "\n";
 			output.write(temp.c_str(), temp.size());
 			output.close();
-
-			std::cout << generation << ") Avg Length : " << avgLength << "\tGeneration Best : " << parent.at(0).score << "\tBest Score : " << bestScore << "\n";
 			generationBestLength = 0;
+
+			if (generation >= RUN_TILL) {
+				exit(0);
+			}
 		}
 
 		ai.clear();
@@ -193,7 +214,7 @@ int main(int argc, char *argv[]) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	std::ofstream output("result/data.cfg");
+	std::ofstream output("result/m" + std::to_string(MODE) + ".res");
 	output.clear();
 	output.close();
 
