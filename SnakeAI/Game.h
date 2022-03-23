@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <SDL.h>
+#include <SDL_image.h>
 
 enum class Direction {
 	up = 0,
@@ -15,14 +16,17 @@ enum class Direction {
 class Game {
 public:
 	Game(int boardSize, int seed);
+	~Game();
 	void update();
 	void render(SDL_Renderer *renderer, int renderX, int renderY, int size);
 
-	void getData(std::vector<float> &finalData);
+	void getData(std::vector<double> &finalData);
 
 	Direction getDirection();
 	void setDirection(const Direction direction);
 	void moveDirection(int change);
+	int getDirectionBetween(SDL_Point a, SDL_Point b);
+	int getCornerData(SDL_Point a, SDL_Point b, SDL_Point c);
 	bool win;
 	bool dead;
 
@@ -30,7 +34,7 @@ public:
 	int liveTime;
 	int eatenApple;
 	int length;
-	float closePoint;
+	double closePoint;
 
 	std::vector<SDL_Point> applePositionLog;
 private:
@@ -42,8 +46,8 @@ private:
 	void renderGrid(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize);
 	void renderApple(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize);
 
-	void getData(std::vector<float>& vector, int offset, SDL_Point &a, SDL_Point &b);
-	void rotateValue(std::vector<float>& vector, int amount, int offset);
+	void getData(std::vector<double> &vector, int offset, SDL_Point &a, SDL_Point &b);
+	void rotateValue(std::vector<double> &vector, int amount, int offset);
 
 	void respawnApple();
 
@@ -57,5 +61,11 @@ private:
 	SDL_Rect drect;
 	std::mt19937 mt;
 
-	float previousDistance;
+	double previousDistance;
+
+	SDL_Texture *head;
+	SDL_Texture *straight;
+	SDL_Texture *corner;
+	SDL_Texture *end;
+	SDL_Texture *appleTexture;
 };

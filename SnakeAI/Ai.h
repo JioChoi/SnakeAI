@@ -8,12 +8,12 @@ class Neuron {
 public:
 	Neuron();
 	void connectNeuron(Neuron& target);
-	void setWeight(int at, float weight);
-	float getWeight(int at);
+	void setWeight(int at, double weight);
+	double getWeight(int at);
 	int getConnectedNeuronSize();
-	void setValue(float value);
-	void addValue(float value);
-	float getValue();
+	void setValue(double value);
+	void addValue(double value);
+	double getValue();
 
 	void calculate();
 	void ReLU();
@@ -21,14 +21,14 @@ public:
 
 	std::string getWeightData();
 
-	float biasWeight;
+	double biasWeight;
 private:
 	struct Connection {
 		Neuron* neuron;
-		float weight;
+		double weight;
 	};
 
-	float value;
+	double value;
 	std::vector<Connection> connectedNeuron;
 };
 
@@ -37,7 +37,7 @@ public:
 	Ai();
 	Ai(std::shared_ptr<Ai> &a, std::shared_ptr<Ai> &b);
 	Ai(std::shared_ptr<Ai>& a);
-	std::vector<float> input;
+	std::vector<double> input;
 	int calculate();
 
 	std::string getWeightData();

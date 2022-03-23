@@ -10,7 +10,7 @@
 
 #define ONE_GENERATION_NUM 999
 #define BOARD_SIZE 20
-#define RUN_TILL 100
+#define RUN_TILL 300
 #define MODE 0
 
 struct Individual {
@@ -20,7 +20,7 @@ struct Individual {
 
 struct scoredIndividual {
 	std::shared_ptr<Ai> ai;
-	float score;
+	double score;
 	std::vector<SDL_Point> apple;
 	int length;
 };
@@ -33,9 +33,9 @@ int individual = 0;
 int previousIndividual = 0;
 int processMode = 0;
 
-float bestScore = 0;
-float avgLength = 0;
-float lengthSum = 0;
+double bestScore = 0;
+double avgLength = 0;
+double lengthSum = 0;
 int bestLength = 0;
 int generationBestLength = 0;
 
@@ -82,8 +82,8 @@ void update() {
 		for (int at = 0; at < 9; at++) {
 			int liveTime = ai.at(at).game.get()->liveTime;
 			int eatenApple = ai.at(at).game.get()->eatenApple;
-			float closePoint = ai.at(at).game.get()->closePoint;
-			float score = 0;
+			double closePoint = ai.at(at).game.get()->closePoint;
+			double score = 0;
 
 			switch (MODE) {
 			case 0:

@@ -23,8 +23,8 @@ int Ai::calculate() {
 
 	/* SET INPUT VALUE */
 	for (int at = 0; at < neuron.at(0).size(); at++) {
-		float temp = 1.0 / input.at(at);
-		//float temp = input.at(at);
+		double temp = 1.0 / input.at(at);
+		//double temp = input.at(at);
 		if (temp != INFINITY) {
 			neuron.at(0).at(at).setValue(temp);
 		}
@@ -51,7 +51,7 @@ int Ai::calculate() {
 
 	/* OUTPUT SOFTMAX */
 	int maxAt = 0;
-	float max = 0;
+	double max = 0;
 	for (int at = 0; at < 3; at++) {
 		neuron.at(3).at(at).addValue(neuron.at(3).at(at).biasWeight);
 		neuron.at(3).at(at).sigmoid();
@@ -85,9 +85,9 @@ void Ai::randomizeWeight() {
 	for (int at = 0; at < 3; at++) {
 		for (Neuron& data : neuron.at(at)) {
 			for (int att = 0; att < data.getConnectedNeuronSize(); att++) {
-				data.setWeight(att, Tool::randomFloat(-1, 1));
+				data.setWeight(att, Tool::randomDouble(-1, 1));
 			}
-			data.biasWeight = Tool::randomFloat(-1, 1);
+			data.biasWeight = Tool::randomDouble(-1, 1);
 		}
 	}
 }
@@ -134,11 +134,11 @@ void Ai::mutate() {
 		for (Neuron& data : neuron.at(at)) {
 			for (int att = 0; att < data.getConnectedNeuronSize(); att++) {
 				if (Tool::randomInt(0, 100) <= MUTATION_RATE) {
-					data.setWeight(att, Tool::randomFloat(-1, 1));
+					data.setWeight(att, Tool::randomDouble(-1, 1));
 				}
 			}
 			if (Tool::randomInt(0, 100) <= MUTATION_RATE) {
-				data.biasWeight = Tool::randomFloat(-1, 1);
+				data.biasWeight = Tool::randomDouble(-1, 1);
 			}
 		}
 	}
@@ -152,11 +152,11 @@ void Neuron::connectNeuron(Neuron& target) {
 	connectedNeuron.push_back({ &target, 0 });
 }
 
-void Neuron::setWeight(int at, float weight) {
+void Neuron::setWeight(int at, double weight) {
 	connectedNeuron.at(at).weight = weight;
 }
 
-float Neuron::getWeight(int at) {
+double Neuron::getWeight(int at) {
 	return connectedNeuron.at(at).weight;
 }
 
@@ -164,15 +164,15 @@ int Neuron::getConnectedNeuronSize() {
 	return connectedNeuron.size();
 }
 
-void Neuron::setValue(float value) {
+void Neuron::setValue(double value) {
 	this->value = value;
 }
 
-void Neuron::addValue(float value) {
+void Neuron::addValue(double value) {
 	this->value += value;
 }
 
-float Neuron::getValue() {
+double Neuron::getValue() {
 	return value;
 }
 

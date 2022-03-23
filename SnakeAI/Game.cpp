@@ -16,6 +16,12 @@ Game::Game(int boardSize, int seed) : boardSize(boardSize), length(3), dead(fals
 	eatenApple = 0;
 	previousDistance = 0;
 	closePoint = 0;
+
+	head = nullptr;
+	straight = nullptr;
+	corner = nullptr;
+	end = nullptr;
+	appleTexture = nullptr;
 }
 
 void Game::update() {
@@ -25,7 +31,7 @@ void Game::update() {
 		moveChance--;
 		liveTime++;
 
-		float currentDistance = sqrt(pow(snakeHead.x - apple.x, 2) + pow(snakeHead.y - apple.y, 2));
+		double currentDistance = sqrt(pow(snakeHead.x - apple.x, 2) + pow(snakeHead.y - apple.y, 2));
 		if (currentDistance < previousDistance) {
 			closePoint += 1;
 		}
@@ -74,29 +80,45 @@ void Game::moveSnake() {
 		snakeHead.x--;
 		break;
 	}
-	
+
 	snake.push_back(snakeHead);
 	if (snake.size() > length) {
 		snake.erase(snake.begin());
 	}
 }
 
+Game::~Game() {
+	SDL_DestroyTexture(head);
+	SDL_DestroyTexture(straight);
+	SDL_DestroyTexture(corner);
+	SDL_DestroyTexture(end);
+	SDL_DestroyTexture(appleTexture);
+}
+
 void Game::render(SDL_Renderer *renderer, int renderX, int renderY, int size) {
 	int singleTileSize = size / boardSize;
 
+	if (head == nullptr) {
+		head = IMG_LoadTexture(renderer, "image/head.png");
+		straight = IMG_LoadTexture(renderer, "image/straight.png");
+		corner = IMG_LoadTexture(renderer, "image/corner.png");
+		end = IMG_LoadTexture(renderer, "image/end.png");
+		appleTexture = IMG_LoadTexture(renderer, "image/apple.png");
+	}
+
+	renderGrid(renderer, renderX, renderY, singleTileSize);
 	renderSnake(renderer, renderX, renderY, singleTileSize);
 	renderApple(renderer, renderX, renderY, singleTileSize);
-	renderGrid(renderer, renderX, renderY, singleTileSize);
 }
 
-void Game::getData(std::vector<float> &finalData) {
+void Game::getData(std::vector<double> &finalData) {
 	finalData.clear();
 	finalData.resize(24, 0);
 
 	getData(finalData, 0, apple, snakeHead);
 	rotateValue(finalData, static_cast<int>(direction) * 2, 0);
 
-	for(int at = 0; at < snake.size() - 1; at++) {
+	for (int at = 0; at < snake.size() - 1; at++) {
 		getData(finalData, 8, snake.at(at), snakeHead);
 	}
 	rotateValue(finalData, static_cast<int>(direction) * 2, 8);
@@ -112,7 +134,7 @@ void Game::getData(std::vector<float> &finalData) {
 	rotateValue(finalData, static_cast<int>(direction) * 2, 16);
 }
 
-void Game::getData(std::vector<float>& vector, int offset, SDL_Point& a, SDL_Point& b) {
+void Game::getData(std::vector<double> &vector, int offset, SDL_Point &a, SDL_Point &b) {
 	int xdiff = a.x - b.x;
 	int ydiff = a.y - b.y;
 
@@ -144,8 +166,8 @@ void Game::getData(std::vector<float>& vector, int offset, SDL_Point& a, SDL_Poi
 	}
 }
 
-void Game::rotateValue(std::vector<float>& vector, int amount, int offset) {
-	std::vector<float> temp = vector;
+void Game::rotateValue(std::vector<double> &vector, int amount, int offset) {
+	std::vector<double> temp = vector;
 
 	int num = amount;
 	for (int at = 0; at < 8; at++) {
@@ -168,7 +190,7 @@ void Game::respawnApple() {
 	do {
 		snakeTouch = false;
 		apple = { random(boardSize), random(boardSize) };
-		for (SDL_Point& temp : snake) {
+		for (SDL_Point &temp : snake) {
 			if (temp.x == apple.x && temp.y == apple.y) {
 				snakeTouch = true;
 				break;
@@ -180,37 +202,113 @@ void Game::respawnApple() {
 }
 
 void Game::renderSnake(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
-	if (dead) {
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-	}
-	else {
-		SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-	}
-	for (SDL_Point& temp : snake) {
-		drect = { renderX + temp.x * singleTileSize, renderY + temp.y * singleTileSize, singleTileSize, singleTileSize };
-		SDL_RenderFillRect(renderer, &drect);
-	}
-}
+	for (int i = 0; i < snake.size(); i++) {
+		drect = { renderX + snake.at(i).x * singleTileSize, renderY + snake.at(i).y * singleTileSize, singleTileSize, singleTileSize };
+		if (i == snake.size() - 1) {
+			drect = { renderX + snake.at(i).x * singleTileSize - (int)(0.24 * singleTileSize), renderY + snake.at(i).y * singleTileSize - (int)(0.357 * singleTileSize), (int)(singleTileSize * 1.5), (int)(singleTileSize * 1.6) };
+			SDL_RenderCopyEx(renderer, head, NULL, &drect, (int)direction * 90, 0, SDL_FLIP_NONE);
+		}
+		else if (i == 0) {
+			int dir = getDirectionBetween(snake.at(0), snake.at(1));
+			SDL_RenderCopyEx(renderer, end, NULL, &drect, dir * 90, 0, SDL_FLIP_NONE);
+		}
+		else {
+			int dir = getCornerData(snake.at(i), snake.at(i - 1), snake.at(i + 1));
+			if (dir == -1) {
+				int a = getDirectionBetween(snake.at(i), snake.at(i - 1));
+				int b = getDirectionBetween(snake.at(i), snake.at(i + 1));
 
-void Game::renderGrid(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 160);
-	for (int y = 0; y < boardSize; y++) {
-		for (int x = 0; x < boardSize; x++) {
-			drect = { renderX + x * singleTileSize, renderY + y * singleTileSize, singleTileSize, singleTileSize };
-			SDL_RenderDrawRect(renderer, &drect);
+				if (a == 0 && b == 2 || b == 0 && a == 2) {
+					SDL_RenderCopyEx(renderer, straight, NULL, &drect, 90, 0, SDL_FLIP_NONE);
+				}
+				else {
+					SDL_RenderCopyEx(renderer, straight, NULL, &drect, 0, 0, SDL_FLIP_NONE);
+				}
+			}
+			else {
+				SDL_RenderCopyEx(renderer, corner, NULL, &drect, (dir) * 90, 0, SDL_FLIP_NONE);
+			}
 		}
 	}
 }
 
-void Game::renderApple(SDL_Renderer* renderer, int renderX, int renderY, int singleTileSize) {
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-	drect = { renderX + apple.x * singleTileSize, renderY + apple.y * singleTileSize, singleTileSize, singleTileSize };
+int Game::getDirectionBetween(SDL_Point a, SDL_Point b) {
+	int x = a.x - b.x;
+	int y = a.y - b.y;
+
+	if (x > 0) {
+		return 1;
+	}
+	if (x < 0) {
+		return 3;
+	}
+	if (y < 0) {
+		return 0;
+	}
+	if (y > 0) {
+		return 2;
+	}
+}
+
+int Game::getCornerData(SDL_Point a, SDL_Point b, SDL_Point c) {
+	int da = getDirectionBetween(a, b);
+	int db = getDirectionBetween(a, c);
+
+	if (da == 1 && db == 0) {
+		return 0;
+	}
+	if (da == 2 && db == 1) {
+		return 1;
+	}
+	if (da == 3 && db == 2) {
+		return 2;
+	}
+	if (da == 0 && db == 3) {
+		return 3;
+	}
+
+	if (da == 0 && db == 1) {
+		return 0;
+	}
+	if (da == 1 && db == 2) {
+		return 1;
+	}
+	if (da == 2 && db == 3) {
+		return 2;
+	}
+	if (da == 3 && db == 0) {
+		return 3;
+	}
+	return -1;
+}
+
+void Game::renderGrid(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	drect = { renderX - 2, renderY - 2, singleTileSize * boardSize + 4, singleTileSize * boardSize + 4 };
 	SDL_RenderFillRect(renderer, &drect);
+	for (int y = 0; y < boardSize; y++) {
+		for (int x = 0; x < boardSize; x++) {
+			if ((x + y) % 2 == 0) {
+				SDL_SetRenderDrawColor(renderer, 213, 213, 213, 255);
+			}
+			else {
+				SDL_SetRenderDrawColor(renderer, 201, 201, 201, 255);
+			}
+
+			drect = { renderX + x * singleTileSize, renderY + y * singleTileSize, singleTileSize, singleTileSize };
+			SDL_RenderFillRect(renderer, &drect);
+		}
+	}
+}
+
+void Game::renderApple(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
+	drect = { renderX + apple.x * singleTileSize, renderY + apple.y * singleTileSize, singleTileSize, singleTileSize };
+	SDL_RenderCopy(renderer, appleTexture, NULL, &drect);
 }
 
 int Game::random(int max) {
 	std::uniform_int_distribution dis(0, boardSize - 1);
-	
+
 	return dis(mt);
 }
 

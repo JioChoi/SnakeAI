@@ -9,7 +9,7 @@ public:
 	static void updateKeyboardState();
 	static bool getKeyboardState(int scancode);
 	static int randomInt(int min, int max);
-	static float randomFloat(float min, float max);
+	static double randomDouble(double min, double max);
 private:
 	static const Uint8 *keyboardState;
 	static std::mt19937 mt;

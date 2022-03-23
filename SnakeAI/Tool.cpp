@@ -21,7 +21,7 @@ int Tool::randomInt(int min, int max) {
 	return dis(mt);
 }
 
-float Tool::randomFloat(float min, float max) {
+double Tool::randomDouble(double min, double max) {
 	std::uniform_real_distribution<float> dis(min, max);
 	return dis(mt);
 }
