@@ -13,6 +13,7 @@
 #define ONE_GENERATION_NUM 999 //999
 #define BOARD_SIZE 20
 #define RUN_TILL 200
+#define CALCULATE_ONCE 9
 
 /*
 0 - apple
@@ -70,19 +71,17 @@ void keyboardInput() {
 }
 
 void updateIndividual(int aiAt) {
-	if (ai.size() > aiAt) {
-		while (ai.at(aiAt).game.get()->dead == false) {
-			ai.at(aiAt).game.get()->getData(ai.at(aiAt).ai.get()->input);
-			int result = ai.at(aiAt).ai.get()->calculate();
-			ai.at(aiAt).game.get()->moveDirection(result - 1);
-			ai.at(aiAt).game.get()->update();
+	while (ai.at(aiAt).game.get()->dead == false) {
+		ai.at(aiAt).game.get()->getData(ai.at(aiAt).ai.get()->input);
+		int result = ai.at(aiAt).ai.get()->calculate();
+		ai.at(aiAt).game.get()->moveDirection(result - 1);
+		ai.at(aiAt).game.get()->update();
 
-			if (processMode == 0) {
-				SDL_Delay(50);
-			}
-			else if (processMode == 3) {
-				SDL_Delay(20);
-			}
+		if (processMode == 0) {
+			SDL_Delay(50);
+		}
+		else if (processMode == 3) {
+			SDL_Delay(20);
 		}
 	}
 }
@@ -111,7 +110,7 @@ void update() {
 
 	/* CREATE NEW INDIVIDUAL / GENERATION */
 	if (allDead) {
-		for (int at = 0; at < 9; at++) {
+		for (int at = 0; at < CALCULATE_ONCE; at++) {
 			int liveTime = ai.at(at).game.get()->liveTime;
 			int eatenApple = ai.at(at).game.get()->eatenApple;
 			double closePoint = ai.at(at).game.get()->closePoint;
@@ -143,11 +142,6 @@ void update() {
 			generation++;
 			individual = 0;
 
-			if (parent.size() >= 2) {
-				//scoredAi.push_back(parent.at(0));
-				//scoredAi.push_back(parent.at(1));
-			}
-
 			std::sort(scoredAi.begin(), scoredAi.end(), compareFunction);
 			parent.clear();
 			for (int at = 0; at < 10; at++) {
@@ -156,7 +150,6 @@ void update() {
 			scoredAi.clear();
 			avgLength = lengthSum / ONE_GENERATION_NUM;
 			lengthSum = 0;
-			//seed = SDL_GetTicks();
 
 			std::ofstream output("result/m" + std::to_string(MODE) + ".res", std::ios_base::app);
 			std::string temp = "";
@@ -165,7 +158,6 @@ void update() {
 				temp += std::to_string(pos.x) + "," + std::to_string(pos.y) + " ";
 			}
 			temp += "\n";
-			//output.write(temp.c_str(), temp.size());
 			temp = std::to_string(parent.at(0).length) + ")" + parent.at(0).ai.get()->getWeightData() + "\n";
 			output.write(temp.c_str(), temp.size());
 			output.close();
@@ -178,13 +170,13 @@ void update() {
 
 		ai.clear();
 		if (generation == 1) {
-			for (int at = 0; at < 9; at++) {
+			for (int at = 0; at < CALCULATE_ONCE; at++) {
 				ai.push_back({ std::shared_ptr<Ai>(new Ai()), std::shared_ptr<Game>(new Game(BOARD_SIZE, seed)) });
 				putIndividual(at);
 			}
 		}
 		else {
-			for (int at = 0; at < 9; at++) {
+			for (int at = 0; at < CALCULATE_ONCE; at++) {
 				Individual temp;
 				if (Tool::randomInt(0, 1) == 0) {
 					temp.ai = std::shared_ptr<Ai>(new Ai(parent.at(0).ai, parent.at(1).ai));
@@ -198,7 +190,7 @@ void update() {
 			}
 		}
 
-		individual += 9;
+		individual += CALCULATE_ONCE;
 	}
 
 	/*if (previousIndividual != individual && processMode == 2) {
@@ -261,11 +253,11 @@ int main(int argc, char *argv[]) {
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_RenderSetLogicalSize(renderer, 1000, 700);
 
-	for (int at = 0; at < 9; at++) {
+	for (int at = 0; at < CALCULATE_ONCE; at++) {
 		ai.push_back({ std::shared_ptr<Ai>(new Ai()), std::shared_ptr<Game>(new Game(BOARD_SIZE, seed)) });
 		putIndividual(at);
 	}
-	individual += 9;
+	individual += CALCULATE_ONCE;
 
 	while (running) {
 		while (SDL_PollEvent(&event)) {

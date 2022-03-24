@@ -88,13 +88,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\SnakeAI\SnakeAI\SDL2\00-SDL2-2.0.14\include;F:\SnakeAI\SnakeAI\SDL2\02-SDL2_ttf-2.0.15\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\SnakeAI\SnakeAI\SDL2\00-SDL2-2.0.14\include;F:\SnakeAI\SnakeAI\SDL2\02-SDL2_ttf-2.0.15\include;F:\SnakeAI-master\SDL2\01-SDL2_image-2.0.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>F:\SnakeAI\SnakeAI\SDL2\00-SDL2-2.0.14\lib\x64;F:\SnakeAI\SnakeAI\SDL2\02-SDL2_ttf-2.0.15\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\SnakeAI\SnakeAI\SDL2\00-SDL2-2.0.14\lib\x64;F:\SnakeAI\SnakeAI\SDL2\02-SDL2_ttf-2.0.15\lib\x64;F:\SnakeAI-master\SDL2\01-SDL2_image-2.0.5\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,13 +119,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>F:\SnakeAI\SnakeAI\SDL2\00-SDL2-2.0.14\include;F:\SnakeAI\SnakeAI\SDL2\02-SDL2_ttf-2.0.15\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\SnakeAI\SnakeAI\SDL2\00-SDL2-2.0.14\include;F:\SnakeAI\SnakeAI\SDL2\02-SDL2_ttf-2.0.15\include;F:\SnakeAI-master\SDL2\01-SDL2_image-2.0.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>F:\SnakeAI\SnakeAI\SDL2\00-SDL2-2.0.14\lib\x64;F:\SnakeAI\SnakeAI\SDL2\02-SDL2_ttf-2.0.15\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\SnakeAI\SnakeAI\SDL2\00-SDL2-2.0.14\lib\x64;F:\SnakeAI\SnakeAI\SDL2\02-SDL2_ttf-2.0.15\lib\x64;F:\SnakeAI-master\SDL2\01-SDL2_image-2.0.5\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

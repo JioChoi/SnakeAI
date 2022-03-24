@@ -202,21 +202,26 @@ void Game::respawnApple() {
 }
 
 void Game::renderSnake(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
-	for (int i = 0; i < snake.size(); i++) {
-		drect = { renderX + snake.at(i).x * singleTileSize, renderY + snake.at(i).y * singleTileSize, singleTileSize, singleTileSize };
-		if (i == snake.size() - 1) {
-			drect = { renderX + snake.at(i).x * singleTileSize - (int)(0.24 * singleTileSize), renderY + snake.at(i).y * singleTileSize - (int)(0.357 * singleTileSize), (int)(singleTileSize * 1.5), (int)(singleTileSize * 1.6) };
+	std::vector<SDL_Point> tempSnake;
+	for (auto& temp : snake) {
+		tempSnake.push_back(temp);
+	}
+
+	for (int i = 0; i < tempSnake.size(); i++) {
+		drect = { renderX + tempSnake.at(i).x * singleTileSize, renderY + tempSnake.at(i).y * singleTileSize, singleTileSize, singleTileSize };
+		if (i == tempSnake.size() - 1) {
+			drect = { renderX + tempSnake.at(i).x * singleTileSize - (int)(0.24 * singleTileSize), renderY + tempSnake.at(i).y * singleTileSize - (int)(0.357 * singleTileSize), (int)(singleTileSize * 1.5), (int)(singleTileSize * 1.6) };
 			SDL_RenderCopyEx(renderer, head, NULL, &drect, (int)direction * 90, 0, SDL_FLIP_NONE);
 		}
 		else if (i == 0) {
-			int dir = getDirectionBetween(snake.at(0), snake.at(1));
+			int dir = getDirectionBetween(tempSnake.at(0), tempSnake.at(1));
 			SDL_RenderCopyEx(renderer, end, NULL, &drect, dir * 90, 0, SDL_FLIP_NONE);
 		}
 		else {
-			int dir = getCornerData(snake.at(i), snake.at(i - 1), snake.at(i + 1));
+			int dir = getCornerData(tempSnake.at(i), tempSnake.at(i - 1), tempSnake.at(i + 1));
 			if (dir == -1) {
-				int a = getDirectionBetween(snake.at(i), snake.at(i - 1));
-				int b = getDirectionBetween(snake.at(i), snake.at(i + 1));
+				int a = getDirectionBetween(tempSnake.at(i), tempSnake.at(i - 1));
+				int b = getDirectionBetween(tempSnake.at(i), tempSnake.at(i + 1));
 
 				if (a == 0 && b == 2 || b == 0 && a == 2) {
 					SDL_RenderCopyEx(renderer, straight, NULL, &drect, 90, 0, SDL_FLIP_NONE);
@@ -307,7 +312,7 @@ void Game::renderApple(SDL_Renderer *renderer, int renderX, int renderY, int sin
 }
 
 int Game::random(int max) {
-	std::uniform_int_distribution dis(0, boardSize - 1);
+	std::uniform_int_distribution<int> dis(0, boardSize - 1);
 
 	return dis(mt);
 }
