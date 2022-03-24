@@ -3,7 +3,7 @@
 #define INPUT_NUM 24
 #define HIDDEN_NUM 16
 
-#define MUTATION_RATE 3
+#define MUTATION_RATE 0
 
 Ai::Ai() {
 	createEmptyNeuron();
@@ -11,7 +11,7 @@ Ai::Ai() {
 	randomizeWeight();
 }
 
-Ai::Ai(std::shared_ptr<Ai>& a, std::shared_ptr<Ai>& b) {
+Ai::Ai(std::shared_ptr<Ai> &a, std::shared_ptr<Ai> &b) {
 	createEmptyNeuron();
 	connectNeuron();
 	createWeight(a, b);
@@ -31,19 +31,19 @@ int Ai::calculate() {
 	}
 
 	/* CALCULATE INPUT */
-	for (Neuron& input : neuron.at(0)) {
+	for (Neuron &input : neuron.at(0)) {
 		input.calculate();
 	}
 
 	/* CALCULATE HIDDEN 1 */
-	for (Neuron& hidden1 : neuron.at(1)) {
+	for (Neuron &hidden1 : neuron.at(1)) {
 		hidden1.addValue(hidden1.biasWeight);
 		hidden1.ReLU(); // ReLU value first!
 		hidden1.calculate();
 	}
 
 	/* CALCULATE HIDDEN 2 */
-	for (Neuron& hidden2 : neuron.at(2)) {
+	for (Neuron &hidden2 : neuron.at(2)) {
 		hidden2.addValue(hidden2.biasWeight);
 		hidden2.ReLU(); // ReLU value first!
 		hidden2.calculate();
@@ -73,8 +73,8 @@ void Ai::createEmptyNeuron() {
 
 void Ai::connectNeuron() {
 	for (int at = 0; at < 3; at++) {
-		for (Neuron& data1 : neuron.at(at)) {
-			for (Neuron& data2 : neuron.at(at + 1)) {
+		for (Neuron &data1 : neuron.at(at)) {
+			for (Neuron &data2 : neuron.at(at + 1)) {
 				data1.connectNeuron(data2);
 			}
 		}
@@ -83,7 +83,7 @@ void Ai::connectNeuron() {
 
 void Ai::randomizeWeight() {
 	for (int at = 0; at < 3; at++) {
-		for (Neuron& data : neuron.at(at)) {
+		for (Neuron &data : neuron.at(at)) {
 			for (int att = 0; att < data.getConnectedNeuronSize(); att++) {
 				data.setWeight(att, Tool::randomDouble(-1, 1));
 			}
@@ -94,13 +94,13 @@ void Ai::randomizeWeight() {
 
 void Ai::resetValue() {
 	for (int at = 0; at < 3; at++) {
-		for (Neuron& data : neuron.at(at)) {
+		for (Neuron &data : neuron.at(at)) {
 			data.setValue(0);
 		}
 	}
 }
 
-void Ai::createWeight(std::shared_ptr<Ai>& a, std::shared_ptr<Ai>& b) {
+void Ai::createWeight(std::shared_ptr<Ai> &a, std::shared_ptr<Ai> &b) {
 	int shareAt = 0;
 	int sharePoint = Tool::randomInt(0, 744);
 
@@ -131,7 +131,7 @@ void Ai::createWeight(std::shared_ptr<Ai>& a, std::shared_ptr<Ai>& b) {
 
 void Ai::mutate() {
 	for (int at = 0; at < 3; at++) {
-		for (Neuron& data : neuron.at(at)) {
+		for (Neuron &data : neuron.at(at)) {
 			for (int att = 0; att < data.getConnectedNeuronSize(); att++) {
 				if (Tool::randomInt(0, 100) <= MUTATION_RATE) {
 					data.setWeight(att, Tool::randomDouble(-1, 1));
@@ -148,7 +148,7 @@ Neuron::Neuron() {
 	value = 0;
 }
 
-void Neuron::connectNeuron(Neuron& target) {
+void Neuron::connectNeuron(Neuron &target) {
 	connectedNeuron.push_back({ &target, 0 });
 }
 
@@ -177,7 +177,7 @@ double Neuron::getValue() {
 }
 
 void Neuron::calculate() {
-	for (Connection& temp : connectedNeuron) {
+	for (Connection &temp : connectedNeuron) {
 		temp.neuron->addValue(value * temp.weight);
 	}
 }

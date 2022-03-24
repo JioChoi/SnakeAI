@@ -8,9 +8,16 @@
 #include "Tool.h"
 #include "Font.h"
 
-#define ONE_GENERATION_NUM 999
+#define ONE_GENERATION_NUM 999 //999
 #define BOARD_SIZE 20
-#define RUN_TILL 300
+#define RUN_TILL 200
+
+/*
+0 - apple
+1 - livedTime + closePoint * 5
+2 - livedTime
+3 - apple + closePoint
+*/
 #define MODE 0
 
 struct Individual {
@@ -41,7 +48,7 @@ int generationBestLength = 0;
 
 int seed = 10;
 
-bool compareFunction(const scoredIndividual& a, const scoredIndividual& b) {
+bool compareFunction(const scoredIndividual &a, const scoredIndividual &b) {
 	return a.score > b.score;
 }
 
@@ -67,7 +74,7 @@ void update() {
 
 	/* UPDATE AI & GAME */
 	bool allDead = true;
-	for (Individual& temp : ai) {
+	for (Individual &temp : ai) {
 		if (temp.game.get()->dead == false) {
 			temp.game.get()->getData(temp.ai.get()->input);
 			int result = temp.ai.get()->calculate();
@@ -76,7 +83,7 @@ void update() {
 			allDead = false;
 		}
 	}
-	
+
 	/* CREATE NEW INDIVIDUAL / GENERATION */
 	if (allDead) {
 		for (int at = 0; at < 9; at++) {
@@ -99,14 +106,14 @@ void update() {
 				score = eatenApple + closePoint;
 				break;
 			}
-			
+
 			scoredAi.push_back({ ai.at(at).ai, score, ai.at(at).game.get()->applePositionLog, ai.at(at).game.get()->length });
 			bestScore = std::fmax(score, bestScore);
 			lengthSum += ai.at(at).game.get()->length;
 			bestLength = std::max(bestLength, ai.at(at).game.get()->length);
 			generationBestLength = std::max(generationBestLength, ai.at(at).game.get()->length);
 		}
-		
+
 		if (individual >= ONE_GENERATION_NUM) {
 			generation++;
 			individual = 0;
@@ -115,7 +122,7 @@ void update() {
 				//scoredAi.push_back(parent.at(0));
 				//scoredAi.push_back(parent.at(1));
 			}
-			
+
 			std::sort(scoredAi.begin(), scoredAi.end(), compareFunction);
 			parent.clear();
 			for (int at = 0; at < 10; at++) {
@@ -139,9 +146,9 @@ void update() {
 			output.close();
 			generationBestLength = 0;
 
-			if (generation >= RUN_TILL) {
-				exit(0);
-			}
+			//if (generation >= RUN_TILL) {
+				//exit(0);
+			//}
 		}
 
 		ai.clear();
@@ -173,7 +180,7 @@ void update() {
 	}*/
 }
 
-void renderText(SDL_Renderer* renderer) {
+void renderText(SDL_Renderer *renderer) {
 	Font::renderFont(renderer, "Generation : " + std::to_string(generation), 700, 0);
 	Font::renderFont(renderer, "Individual : " + std::to_string(individual), 700, 20);
 	if (processMode == 0) {
@@ -219,7 +226,7 @@ int main(int argc, char *argv[]) {
 	output.close();
 
 	SDL_Window *window = SDL_CreateWindow("Neural Network", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1000, 700, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE);
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 	SDL_Event event;
 	bool running = true;
