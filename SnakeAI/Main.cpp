@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <thread>
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 
@@ -67,6 +69,29 @@ void keyboardInput() {
 	}
 }
 
+void updateIndividual(int aiAt) {
+	if (ai.size() > aiAt) {
+		while (ai.at(aiAt).game.get()->dead == false) {
+			ai.at(aiAt).game.get()->getData(ai.at(aiAt).ai.get()->input);
+			int result = ai.at(aiAt).ai.get()->calculate();
+			ai.at(aiAt).game.get()->moveDirection(result - 1);
+			ai.at(aiAt).game.get()->update();
+
+			if (processMode == 0) {
+				SDL_Delay(50);
+			}
+			else if (processMode == 3) {
+				SDL_Delay(20);
+			}
+		}
+	}
+}
+
+void putIndividual(int at) {
+	std::thread t(updateIndividual, at);
+	t.detach();
+}
+
 void update() {
 	Tool::updateKeyboardState();
 
@@ -76,10 +101,10 @@ void update() {
 	bool allDead = true;
 	for (Individual &temp : ai) {
 		if (temp.game.get()->dead == false) {
-			temp.game.get()->getData(temp.ai.get()->input);
-			int result = temp.ai.get()->calculate();
-			temp.game.get()->moveDirection(result - 1);
-			temp.game.get()->update();
+			//temp.game.get()->getData(temp.ai.get()->input);
+			//int result = temp.ai.get()->calculate();
+			//temp.game.get()->moveDirection(result - 1);
+			//temp.game.get()->update();
 			allDead = false;
 		}
 	}
@@ -155,6 +180,7 @@ void update() {
 		if (generation == 1) {
 			for (int at = 0; at < 9; at++) {
 				ai.push_back({ std::shared_ptr<Ai>(new Ai()), std::shared_ptr<Game>(new Game(BOARD_SIZE, seed)) });
+				putIndividual(at);
 			}
 		}
 		else {
@@ -168,6 +194,7 @@ void update() {
 				}
 				temp.game = std::shared_ptr<Game>(new Game(BOARD_SIZE, seed));
 				ai.push_back(temp);
+				putIndividual(at);
 			}
 		}
 
@@ -236,6 +263,7 @@ int main(int argc, char *argv[]) {
 
 	for (int at = 0; at < 9; at++) {
 		ai.push_back({ std::shared_ptr<Ai>(new Ai()), std::shared_ptr<Game>(new Game(BOARD_SIZE, seed)) });
+		putIndividual(at);
 	}
 	individual += 9;
 
@@ -249,13 +277,6 @@ int main(int argc, char *argv[]) {
 		update();
 		if (processMode != 2) {
 			render(renderer);
-		}
-
-		if (processMode == 0) {
-			SDL_Delay(50);
-		}
-		else if (processMode == 3) {
-			SDL_Delay(20);
 		}
 	}
 
