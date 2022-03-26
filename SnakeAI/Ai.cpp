@@ -1,9 +1,8 @@
 #include "Ai.h"
+#include "Settings.h"
 
 #define INPUT_NUM 24
 #define HIDDEN_NUM 16
-
-#define MUTATION_RATE 0
 
 Ai::Ai() {
 	createEmptyNeuron();
@@ -133,11 +132,11 @@ void Ai::mutate() {
 	for (int at = 0; at < 3; at++) {
 		for (Neuron &data : neuron.at(at)) {
 			for (int att = 0; att < data.getConnectedNeuronSize(); att++) {
-				if (Tool::randomInt(0, 100) <= MUTATION_RATE) {
+				if (Tool::randomInt(0, 1000) <= MUTATION_RATE) {
 					data.setWeight(att, Tool::randomDouble(-1, 1));
 				}
 			}
-			if (Tool::randomInt(0, 100) <= MUTATION_RATE) {
+			if (Tool::randomInt(0, 1000) <= MUTATION_RATE) {
 				data.biasWeight = Tool::randomDouble(-1, 1);
 			}
 		}

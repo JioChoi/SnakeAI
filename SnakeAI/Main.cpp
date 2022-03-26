@@ -10,18 +10,7 @@
 #include "Tool.h"
 #include "Font.h"
 
-#define ONE_GENERATION_NUM 999 //999
-#define BOARD_SIZE 20
-#define RUN_TILL 200
-#define CALCULATE_ONCE 9
-
-/*
-0 - apple
-1 - livedTime + closePoint * 5
-2 - livedTime
-3 - apple + closePoint
-*/
-#define MODE 0
+#include "Settings.h"
 
 struct Individual {
 	std::shared_ptr<Ai> ai;
@@ -151,7 +140,7 @@ void update() {
 			avgLength = lengthSum / ONE_GENERATION_NUM;
 			lengthSum = 0;
 
-			std::ofstream output("result/m" + std::to_string(MODE) + ".res", std::ios_base::app);
+			std::ofstream output("result/" FILE_NAME, std::ios_base::app);
 			std::string temp = "";
 
 			for (auto pos : parent.at(0).apple) {
@@ -191,6 +180,8 @@ void update() {
 		}
 
 		individual += CALCULATE_ONCE;
+
+		//seed = SDL_GetTicks();
 	}
 
 	/*if (previousIndividual != individual && processMode == 2) {
@@ -237,10 +228,12 @@ void render(SDL_Renderer *renderer) {
 }
 
 int main(int argc, char *argv[]) {
+	std::cout << FILE_NAME << std::endl;
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	std::ofstream output("result/m" + std::to_string(MODE) + ".res");
+	std::ofstream output("result/" FILE_NAME);
 	output.clear();
 	output.close();
 
