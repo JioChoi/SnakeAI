@@ -60,11 +60,14 @@ void keyboardInput() {
 }
 
 void updateIndividual(int aiAt) {
-	while (ai.at(aiAt).game.get()->dead == false) {
+	while (true) {
 		ai.at(aiAt).game.get()->getData(ai.at(aiAt).ai.get()->input);
 		int result = ai.at(aiAt).ai.get()->calculate();
 		ai.at(aiAt).game.get()->moveDirection(result - 1);
 		ai.at(aiAt).game.get()->update();
+		if (ai.at(aiAt).game.get()->dead == true) {
+			return;
+		}
 
 		if (processMode == 0) {
 			SDL_Delay(50);
@@ -89,10 +92,6 @@ void update() {
 	bool allDead = true;
 	for (Individual &temp : ai) {
 		if (temp.game.get()->dead == false) {
-			//temp.game.get()->getData(temp.ai.get()->input);
-			//int result = temp.ai.get()->calculate();
-			//temp.game.get()->moveDirection(result - 1);
-			//temp.game.get()->update();
 			allDead = false;
 		}
 	}
