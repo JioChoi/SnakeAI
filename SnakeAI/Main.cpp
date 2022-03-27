@@ -139,7 +139,8 @@ void update() {
 			avgLength = lengthSum / ONE_GENERATION_NUM;
 			lengthSum = 0;
 
-			std::ofstream output("result/" FILE_NAME, std::ios_base::app);
+			std::ofstream output("result/" FILE_NAME ".res", std::ios_base::app);
+			std::ofstream csv("result/" FILE_NAME ".csv", std::ios_base::app);
 			std::string temp = "";
 
 			for (auto pos : parent.at(0).apple) {
@@ -148,12 +149,14 @@ void update() {
 			temp += "\n";
 			temp = std::to_string(parent.at(0).length) + ")" + parent.at(0).ai.get()->getWeightData() + "\n";
 			output.write(temp.c_str(), temp.size());
+			temp = std::to_string(parent.at(0).length) + "\n";
+			csv.write(temp.c_str(), temp.size());
 			output.close();
 			generationBestLength = 0;
 
-			//if (generation >= RUN_TILL) {
-				//exit(0);
-			//}
+			if (generation >= RUN_TILL) {
+				exit(0);
+			}
 		}
 
 		ai.clear();
@@ -227,12 +230,14 @@ void render(SDL_Renderer *renderer) {
 }
 
 int main(int argc, char *argv[]) {
-	std::cout << FILE_NAME << std::endl;
-
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	std::ofstream output("result/" FILE_NAME);
+	std::ofstream output("result/" FILE_NAME ".res");
+	output.clear();
+	output.close();
+
+	std::ofstream csv("result/" FILE_NAME ".csv");
 	output.clear();
 	output.close();
 
@@ -250,6 +255,8 @@ int main(int argc, char *argv[]) {
 		putIndividual(at);
 	}
 	individual += CALCULATE_ONCE;
+
+	processMode = 2;
 
 	while (running) {
 		while (SDL_PollEvent(&event)) {
