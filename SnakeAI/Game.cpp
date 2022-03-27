@@ -31,6 +31,10 @@ void Game::update() {
 		moveChance--;
 		liveTime++;
 
+		if (dead == true) {
+			return;
+		}
+
 		double currentDistance = sqrt(pow(snakeHead.x - apple.x, 2) + pow(snakeHead.y - apple.y, 2));
 		if (currentDistance < previousDistance) {
 			closePoint += 1;
@@ -203,7 +207,7 @@ void Game::respawnApple() {
 
 void Game::renderSnake(SDL_Renderer *renderer, int renderX, int renderY, int singleTileSize) {
 	std::vector<SDL_Point> tempSnake;
-	for (auto& temp : snake) {
+	for (auto &temp : snake) {
 		tempSnake.push_back(temp);
 	}
 

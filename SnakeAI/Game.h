@@ -29,6 +29,7 @@ public:
 	int getCornerData(SDL_Point a, SDL_Point b, SDL_Point c);
 	bool win;
 	bool dead;
+	bool threadEnded = false;
 
 	int moveChance;
 	int liveTime;

@@ -132,11 +132,11 @@ void Ai::mutate() {
 	for (int at = 0; at < 3; at++) {
 		for (Neuron &data : neuron.at(at)) {
 			for (int att = 0; att < data.getConnectedNeuronSize(); att++) {
-				if (Tool::randomInt(0, 1000) <= MUTATION_RATE) {
+				if (Tool::randomInt(0, 1000) <= mutationRate) {
 					data.setWeight(att, Tool::randomDouble(-1, 1));
 				}
 			}
-			if (Tool::randomInt(0, 1000) <= MUTATION_RATE) {
+			if (Tool::randomInt(0, 1000) <= mutationRate) {
 				data.biasWeight = Tool::randomDouble(-1, 1);
 			}
 		}

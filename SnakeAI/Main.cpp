@@ -12,6 +12,14 @@
 
 #include "Settings.h"
 
+std::string fileName = "";
+int mutationRate = 0;
+int runTill = 200;
+int oneGeneration = 500;
+int mode = 0;
+
+int runCount = 0;
+
 struct Individual {
 	std::shared_ptr<Ai> ai;
 	std::shared_ptr<Game> game;
@@ -29,7 +37,6 @@ std::vector<scoredIndividual> scoredAi;
 std::vector<scoredIndividual> parent;
 int generation = 1;
 int individual = 0;
-int previousIndividual = 0;
 int processMode = 0;
 
 double bestScore = 0;
@@ -39,6 +46,57 @@ int bestLength = 0;
 int generationBestLength = 0;
 
 int seed = 10;
+
+int deadNum = 0;
+int createNum = 0;
+
+void updateIndividual(int aiAt) {
+	createNum++;
+	while (true) {
+		ai.at(aiAt).game.get()->getData(ai.at(aiAt).ai.get()->input);
+		int result = ai.at(aiAt).ai.get()->calculate();
+		ai.at(aiAt).game.get()->moveDirection(result - 1);
+		ai.at(aiAt).game.get()->update();
+		if (ai.at(aiAt).game.get()->dead == true) {
+			ai.at(aiAt).game.get()->threadEnded = true;
+			return;
+		}
+
+		if (processMode == 0) {
+			SDL_Delay(50);
+		}
+		else if (processMode == 3) {
+			SDL_Delay(20);
+		}
+	}
+}
+
+void putIndividual(int at) {
+	std::thread t(updateIndividual, at);
+	t.detach();
+}
+
+void reset() {
+	fileName = "m" + std::to_string(mode) + "_mu" + std::to_string(mutationRate) + "_indi" + std::to_string(oneGeneration) + "_maxGen" + std::to_string(runTill);
+
+	individual = 0;
+	generation = 1;
+	bestScore = 0;
+	avgLength = 0;
+	generationBestLength = 0;
+
+	ai.clear();
+	scoredAi.clear();
+	parent.clear();
+
+	std::ofstream output("result/" + fileName + ".res");
+	output.clear();
+	output.close();
+
+	std::ofstream csv("result/" + fileName + ".csv");
+	output.clear();
+	output.close();
+}
 
 bool compareFunction(const scoredIndividual &a, const scoredIndividual &b) {
 	return a.score > b.score;
@@ -59,30 +117,6 @@ void keyboardInput() {
 	}
 }
 
-void updateIndividual(int aiAt) {
-	while (true) {
-		ai.at(aiAt).game.get()->getData(ai.at(aiAt).ai.get()->input);
-		int result = ai.at(aiAt).ai.get()->calculate();
-		ai.at(aiAt).game.get()->moveDirection(result - 1);
-		ai.at(aiAt).game.get()->update();
-		if (ai.at(aiAt).game.get()->dead == true) {
-			return;
-		}
-
-		if (processMode == 0) {
-			SDL_Delay(50);
-		}
-		else if (processMode == 3) {
-			SDL_Delay(20);
-		}
-	}
-}
-
-void putIndividual(int at) {
-	std::thread t(updateIndividual, at);
-	t.detach();
-}
-
 void update() {
 	Tool::updateKeyboardState();
 
@@ -90,8 +124,8 @@ void update() {
 
 	/* UPDATE AI & GAME */
 	bool allDead = true;
-	for (Individual &temp : ai) {
-		if (temp.game.get()->dead == false) {
+	for (int at = 0; at < ai.size(); at++) {
+		if (ai.at(at).game.get()->threadEnded == false) {
 			allDead = false;
 		}
 	}
@@ -104,7 +138,7 @@ void update() {
 			double closePoint = ai.at(at).game.get()->closePoint;
 			double score = 0;
 
-			switch (MODE) {
+			switch (mode) {
 			case 0:
 				score = eatenApple;
 				break;
@@ -125,8 +159,15 @@ void update() {
 			bestLength = std::max(bestLength, ai.at(at).game.get()->length);
 			generationBestLength = std::max(generationBestLength, ai.at(at).game.get()->length);
 		}
+		ai.clear();
 
-		if (individual >= ONE_GENERATION_NUM) {
+		if (individual >= oneGeneration) {
+			/* TO PREVENT DEPROVING */
+			/*if (generation != 1) {
+				scoredAi.push_back(parent.at(0));
+				scoredAi.push_back(parent.at(1));
+			}*/
+
 			generation++;
 			individual = 0;
 
@@ -136,11 +177,11 @@ void update() {
 				parent.push_back(scoredAi.at(at));
 			}
 			scoredAi.clear();
-			avgLength = lengthSum / ONE_GENERATION_NUM;
+			avgLength = lengthSum / oneGeneration;
 			lengthSum = 0;
 
-			std::ofstream output("result/" FILE_NAME ".res", std::ios_base::app);
-			std::ofstream csv("result/" FILE_NAME ".csv", std::ios_base::app);
+			std::ofstream output("result/" + fileName + ".res", std::ios_base::app);
+			std::ofstream csv("result/" + fileName + ".csv", std::ios_base::app);
 			std::string temp = "";
 
 			for (auto pos : parent.at(0).apple) {
@@ -154,12 +195,18 @@ void update() {
 			output.close();
 			generationBestLength = 0;
 
-			if (generation >= RUN_TILL) {
-				exit(0);
+			if (generation >= runTill) {
+				runCount++;
+				mutationRate += 1;
+				if (mutationRate > 1000) {
+					exit(0);
+				}
+
+				reset();
+				std::cout << "RESETFINISH\n";
 			}
 		}
 
-		ai.clear();
 		if (generation == 1) {
 			for (int at = 0; at < CALCULATE_ONCE; at++) {
 				ai.push_back({ std::shared_ptr<Ai>(new Ai()), std::shared_ptr<Game>(new Game(BOARD_SIZE, seed)) });
@@ -180,16 +227,10 @@ void update() {
 				putIndividual(at);
 			}
 		}
-
 		individual += CALCULATE_ONCE;
-
-		//seed = SDL_GetTicks();
 	}
 
-	/*if (previousIndividual != individual && processMode == 2) {
-		std::cout << individual << "\n";
-		previousIndividual = individual;
-	}*/
+	//SDL_Delay(10);
 }
 
 void renderText(SDL_Renderer *renderer) {
@@ -233,14 +274,6 @@ int main(int argc, char *argv[]) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 
-	std::ofstream output("result/" FILE_NAME ".res");
-	output.clear();
-	output.close();
-
-	std::ofstream csv("result/" FILE_NAME ".csv");
-	output.clear();
-	output.close();
-
 	SDL_Window *window = SDL_CreateWindow("Neural Network", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1000, 700, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE);
 	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
@@ -250,6 +283,7 @@ int main(int argc, char *argv[]) {
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_RenderSetLogicalSize(renderer, 1000, 700);
 
+	reset();
 	for (int at = 0; at < CALCULATE_ONCE; at++) {
 		ai.push_back({ std::shared_ptr<Ai>(new Ai()), std::shared_ptr<Game>(new Game(BOARD_SIZE, seed)) });
 		putIndividual(at);
