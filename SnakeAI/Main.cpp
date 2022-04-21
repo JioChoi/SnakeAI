@@ -13,8 +13,8 @@
 #include "Settings.h"
 
 std::string fileName = "";
-int mutationRate = 0;
-int runTill = 200;
+int mutationRate = 10;
+int runTill = 50;
 int oneGeneration = 500;
 int mode = 0;
 
@@ -59,6 +59,7 @@ void updateIndividual(int aiAt) {
 		ai.at(aiAt).game.get()->update();
 		if (ai.at(aiAt).game.get()->dead == true) {
 			ai.at(aiAt).game.get()->threadEnded = true;
+			
 			return;
 		}
 
@@ -77,6 +78,7 @@ void putIndividual(int at) {
 }
 
 void reset() {
+	Tool::resetSeed();
 	fileName = "m" + std::to_string(mode) + "_mu" + std::to_string(mutationRate) + "_indi" + std::to_string(oneGeneration) + "_maxGen" + std::to_string(runTill);
 
 	individual = 0;
@@ -196,13 +198,13 @@ void update() {
 			generationBestLength = 0;
 
 			if (generation >= runTill) {
-				runCount++;
-				mutationRate += 1;
-				if (mutationRate > 1000) {
+				//runCount++;
+				//oneGeneration += 10;
+				if (runCount > 100) {
 					exit(0);
 				}
 
-				reset();
+				//reset();
 				std::cout << "RESETFINISH\n";
 			}
 		}

@@ -129,18 +129,26 @@ void Ai::createWeight(std::shared_ptr<Ai> &a, std::shared_ptr<Ai> &b) {
 }
 
 void Ai::mutate() {
+	//int mutationCnt = 0;
+	//int chance = 0;
 	for (int at = 0; at < 3; at++) {
 		for (Neuron &data : neuron.at(at)) {
 			for (int att = 0; att < data.getConnectedNeuronSize(); att++) {
 				if (Tool::randomInt(0, 1000) <= mutationRate) {
 					data.setWeight(att, Tool::randomDouble(-1, 1));
+					//mutationCnt++;
 				}
+				//chance++;
 			}
 			if (Tool::randomInt(0, 1000) <= mutationRate) {
 				data.biasWeight = Tool::randomDouble(-1, 1);
+				//mutationCnt++;
 			}
+			//chance++;
 		}
 	}
+
+	//std::cout << (float)mutationCnt / chance * 100.0 << std::endl;
 }
 
 Neuron::Neuron() {
